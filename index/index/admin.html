@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+// 🔒 BLOCK DIRECT ACCESS
+if(sessionStorage.getItem("adminAuth") !== "true"){
+  alert("Unauthorized Access");
+  window.location = "index.html";
+}
+</script>
+
+<style>
+*{box-sizing:border-box;font-family:Arial}
+body{margin:0;background:#f4f6fb}
+
+header{
+  background:linear-gradient(135deg,#0f3443,#34e89e);
+  color:white;
+  padding:18px;
+  text-align:center;
+  font-size:22px;
+  position:relative;
+}
+
+.logout{
+  position:absolute;
+  right:14px;
+  top:14px;
+  background:#e74c3c;
+  color:white;
+  border:none;
+  padding:8px 14px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:16px;
+}
+
+/* ACTION BAR */
+.actions{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:16px;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+.clear-btn{
+  background:#e74c3c;
+  color:white;
+  border:none;
+  padding:10px 16px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:14px;
+}
+
+/* ORDER CARD */
+.order{
+  background:white;
+  border-radius:14px;
+  padding:14px;
+  margin-bottom:14px;
+  box-shadow:0 6px 18px rgba(0,0,0,.1);
+}
+
+.status{
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:12px;
+  font-size:12px;
+  font-weight:bold;
+}
+.pending{background:#f39c12;color:white}
+.delivered{background:#2ecc71;color:white}
+
+.item{
+  display:flex;
+  justify-content:space-between;
+  font-size:14px;
+}
+.hr{
+  border-top:1px solid #ddd;
+  margin:10px 0;
+}
+
+.btn{
+  padding:8px 14px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:14px;
+}
+.deliverBtn{background:#2ecc71;color:white}
+
+.empty{
+  text-align:center;
+  color:#777;
+  margin-top:40px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  📊 Admin Dashboard
+  <button class="logout" onclick="logout()">Logout</button>
+</header>
+
+<div class="container">
+
+  <!-- ACTION BAR -->
+  <div class="actions">
+    <h3>Order History</h3>
+    <button class="clear-btn" onclick="clearHistory()">🗑 Delete All History</button>
+  </div>
+
+  <div id="orders"></div>
+
+</div>
+
+<script>
+let orders = JSON.parse(localStorage.getItem("orders")) || [];
+const ordersDiv = document.getElementById("orders");
+
+/* RENDER ORDERS */
+function renderOrders(){
+  ordersDiv.innerHTML = "";
+
+  if(orders.length === 0){
+    ordersDiv.innerHTML = `<div class="empty">No orders found</div>`;
+    return;
+  }
+
+  orders.slice().reverse().forEach((o,idx)=>{
+    let itemsHTML = "";
+    o.cart.forEach(i=>{
+      itemsHTML += `
+        <div class="item">
+          <span>${i.name} x ${i.qty}</span>
+          <span>₹${i.price*i.qty}</span>
+        </div>`;
+    });
+
+    ordersDiv.innerHTML += `
+    <div class="order">
+      <b>${o.name}</b> (${o.phone})<br>
+      📍 ${o.address}<br>
+      🕒 ${o.date}<br>
+      Status:
+      <span class="status ${o.status === "Delivered" ? "delivered" : "pending"}">
+        ${o.status}
+      </span>
+
+      <div class="hr"></div>
+      ${itemsHTML}
+      <div class="hr"></div>
+      <b>Total: ₹${o.total}</b><br><br>
+
+      ${o.status === "Pending" ? 
+        `<button class="btn deliverBtn" onclick="markDelivered(${orders.length-1-idx})">
+          Mark Delivered
+        </button>` : ""
+      }
+    </div>`;
+  });
+}
+
+/* MARK DELIVERED */
+function markDelivered(index){
+  orders[index].status = "Delivered";
+  localStorage.setItem("orders", JSON.stringify(orders));
+  renderOrders();
+}
+
+/* DELETE ALL HISTORY */
+function clearHistory(){
+  if(confirm("⚠ Are you sure you want to delete ALL order history?")){
+    localStorage.removeItem("orders");
+    orders = [];
+    renderOrders();
+    alert("✅ Order history deleted");
+  }
+}
+
+/* LOGOUT */
+function logout(){
+  sessionStorage.removeItem("adminAuth");
+  window.location = "index.html";
+}
+
+renderOrders();
+</script>
+
+</body>
+</html>

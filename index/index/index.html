@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SAU VARIETY STORE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Segoe UI', Arial, sans-serif;
+}
+
+body{
+  background:#f4f7fb;
+  color:#222;
+}
+
+/* ================= HEADER ================= */
+header{
+  background:linear-gradient(135deg,#0f3443,#34e89e);
+  padding:26px 20px 34px;
+  position:relative;
+  overflow:hidden;
+}
+
+/* floating animation */
+header::before,
+header::after{
+  content:"";
+  position:absolute;
+  width:220px;
+  height:220px;
+  background:rgba(255,255,255,0.15);
+  border-radius:50%;
+  animation:float 8s infinite alternate;
+}
+header::before{top:-60px;left:-60px}
+header::after{bottom:-80px;right:-80px;animation-delay:4s}
+
+@keyframes float{
+  from{transform:translateY(0)}
+  to{transform:translateY(40px)}
+}
+
+/* BRAND */
+.brand{
+  text-align:center;
+  font-size:34px;
+  font-weight:800;
+  letter-spacing:2px;
+  color:white;
+  animation:wave 2.5s ease-in-out infinite;
+}
+
+@keyframes wave{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
+}
+
+.tagline{
+  text-align:center;
+  font-size:14px;
+  opacity:.95;
+  margin-top:6px;
+}
+
+/* SEARCH */
+.search-box{
+  margin:22px auto 0;
+  max-width:520px;
+  background:white;
+  border-radius:30px;
+  display:flex;
+  align-items:center;
+  padding:8px 14px;
+  box-shadow:0 12px 30px rgba(0,0,0,.25);
+}
+
+.search-box input{
+  border:none;
+  outline:none;
+  flex:1;
+  font-size:15px;
+  padding:8px;
+}
+
+#clearBtn{
+  cursor:pointer;
+  font-size:16px;
+  color:#999;
+  display:none;
+  margin-left:8px;
+}
+#clearBtn:hover{color:#e74c3c}
+
+/* ================= SECTION ================= */
+.section-title{
+  margin:26px;
+  font-size:24px;
+  font-weight:600;
+}
+
+/* ================= CATEGORY GRID ================= */
+.categories{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:24px;
+  padding:0 24px 40px;
+}
+
+.card{
+  background:white;
+  border-radius:22px;
+  overflow:hidden;
+  cursor:pointer;
+  box-shadow:0 14px 32px rgba(0,0,0,.12);
+  transition:.4s;
+  position:relative;
+}
+
+.card:hover{
+  transform:translateY(-10px) scale(1.02);
+  box-shadow:0 22px 46px rgba(0,0,0,.18);
+}
+
+.card img{
+  width:100%;
+  height:180px;
+  object-fit:cover;
+  transition:.4s;
+}
+.card:hover img{transform:scale(1.08)}
+
+.badge{
+  position:absolute;
+  top:14px;
+  left:14px;
+  background:#27ae60;
+  color:white;
+  padding:6px 12px;
+  border-radius:14px;
+  font-size:13px;
+  font-weight:600;
+}
+
+.card-content{
+  padding:16px 18px;
+}
+
+.card-content h3{
+  font-size:18px;
+  margin-bottom:6px;
+}
+
+.card-content p{
+  font-size:14px;
+  color:#666;
+}
+
+.meta{
+  margin-top:8px;
+  font-size:13px;
+  color:#777;
+}
+
+/* ================= OWNER INFO (BOTTOM) ================= */
+.info-strip{
+  background:white;
+  margin:20px auto 30px;
+  max-width:1150px;
+  padding:16px 22px;
+  border-radius:18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 10px 26px rgba(0,0,0,.12);
+  font-size:14px;
+}
+
+.info-left{line-height:1.6}
+.info-right{font-weight:600;color:#27ae60}
+
+/* MOBILE */
+@media(max-width:700px){
+  .brand{font-size:24px}
+  .info-strip{
+    flex-direction:column;
+    gap:8px;
+    text-align:center;
+  }
+  .section-title{font-size:20px}
+}
+</style>
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+<header>
+  <div class="brand">🛒 SAU VARIETY STORE</div>
+  <div class="tagline">Your Trusted Grocery & Daily Needs Store</div>
+
+  <div class="search-box">
+    🔍
+    <input type="text" id="searchInput" placeholder="Search bakery, grocery, snacks...">
+    <span id="clearBtn">✖</span>
+  </div>
+</header>
+
+<!-- ================= CATEGORIES ================= -->
+<div class="section-title">Shop by Category</div>
+
+<div class="categories">
+
+  <div class="card" data-name="bakery cakes pastries breads"
+       onclick="openMenu('Bakery Items')">
+    <span class="badge">Popular</span>
+    <img src="https://images.unsplash.com/photo-1542826438-8b10a43cdd2c">
+    <div class="card-content">
+      <h3>Bakery Items</h3>
+      <p>Cakes • Pastries • Breads</p>
+      <div class="meta">Fresh Daily</div>
+    </div>
+  </div>
+
+  <div class="card" data-name="grocery kitchen atta rice dal masala"
+       onclick="openMenu('Grocery & Kitchen')">
+    <span class="badge">Best Seller</span>
+    <img src="https://images.unsplash.com/photo-1586201375761-83865001e31b">
+    <div class="card-content">
+      <h3>Grocery & Kitchen</h3>
+      <p>Atta • Rice • Dal • Masala</p>
+      <div class="meta">All Brands Available</div>
+    </div>
+  </div>
+
+  <div class="card" data-name="snacks drinks biscuits cold drinks"
+       onclick="openMenu('Snacks & Drinks')">
+    <span class="badge">Hot</span>
+    <img src="https://images.unsplash.com/photo-1604908177522-0407a0f7f9b7">
+    <div class="card-content">
+      <h3>Snacks & Drinks</h3>
+      <p>Biscuits • Cold Drinks</p>
+      <div class="meta">Kids Favourite</div>
+    </div>
+  </div>
+
+  <div class="card" data-name="daily essentials oil soap household"
+       onclick="openMenu('Daily Essentials')">
+    <span class="badge">New</span>
+    <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b">
+    <div class="card-content">
+      <h3>Daily Essentials</h3>
+      <p>Oil • Soap • Household</p>
+      <div class="meta">Best Price</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ================= OWNER / ADDRESS ================= -->
+<div class="info-strip">
+  <div class="info-left">
+    <i><b>OWNER: SHYAMAL KUMAR SAU<br></b></i>
+   <i> <b> Pakurseni- Narayangarh-Paschim Medinipur</b></i>
+  </div>
+  <div class="info-right">
+    📞 +91 9XXXXXXXXX
+  </div>
+</div>
+
+<script>
+function openMenu(category){
+  localStorage.setItem("restaurant","SAU VARIETY STORE");
+  localStorage.setItem("category",category);
+  window.location="menu.html";
+}
+
+/* SEARCH FUNCTION */
+const searchInput = document.getElementById("searchInput");
+const clearBtn = document.getElementById("clearBtn");
+const cards = document.querySelectorAll(".card");
+
+searchInput.addEventListener("input", ()=>{
+  const value = searchInput.value.toLowerCase();
+  clearBtn.style.display = value ? "inline" : "none";
+
+  cards.forEach(card=>{
+    card.style.display =
+      card.dataset.name.includes(value) ? "block" : "none";
+  });
+});
+
+clearBtn.addEventListener("click", ()=>{
+  searchInput.value = "";
+  clearBtn.style.display = "none";
+  cards.forEach(card=>card.style.display="block");
+});
+</script>
+
+<!-- 🔐 HIDDEN ADMIN BUTTON -->
+<button id="adminBtn" onclick="openAdmin()">⚙</button>
+
+<style>
+#adminBtn{
+  position:fixed;
+  bottom:14px;
+  right:14px;
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  border:none;
+  background:#000;
+  color:#fff;
+  font-size:18px;
+  opacity:0.4;
+  z-index:999;
+}
+#adminBtn:hover{opacity:1}
+</style>
+
+<script>
+const ADMIN_PASSWORD = "sau@123"; // 🔐 CHANGE PASSWORD
+
+function openAdmin(){
+  const pass = prompt("Enter Admin Password");
+  if(pass === ADMIN_PASSWORD){
+    sessionStorage.setItem("adminAuth","true");
+    window.location = "admin.html";
+  }else{
+    alert("❌ Wrong Password");
+  }
+}
+</script>
+
+
+</body>
+</html>

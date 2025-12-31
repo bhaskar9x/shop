@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Order Confirmation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+*{box-sizing:border-box;font-family:Arial}
+body{
+  background:#f2f4f8;
+  margin:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+.card{
+  background:#fff;
+  width:95%;
+  max-width:420px;
+  border-radius:18px;
+  padding:22px;
+  box-shadow:0 12px 30px rgba(0,0,0,.12);
+}
+.success{
+  width:70px;height:70px;border-radius:50%;
+  background:#2ecc71;color:#fff;
+  font-size:36px;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 12px;
+  animation:pop .6s ease;
+}
+@keyframes pop{
+  0%{transform:scale(0)}
+  80%{transform:scale(1.2)}
+  100%{transform:scale(1)}
+}
+.title{
+  text-align:center;
+  font-size:22px;
+  font-weight:bold;
+  color:#2e7d32;
+  margin-bottom:14px;
+}
+.section{margin-bottom:14px;font-size:15px}
+.section b{display:block;margin-bottom:4px}
+.row{
+  display:flex;
+  justify-content:space-between;
+  margin:6px 0;
+}
+.hr{border-top:1px solid #ddd;margin:10px 0}
+.total{font-weight:bold;font-size:16px}
+.btn{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:14px;
+  font-size:16px;
+  cursor:pointer;
+  margin-top:10px;
+}
+.whatsapp{background:#25D366;color:#fff}
+.pdf{background:#3498db;color:#fff}
+.upi{background:#6f42c1;color:#fff}
+.back{background:#e0e0e0}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <div class="success">✔</div>
+  <div class="title">Order Confirmation</div>
+
+  <div class="section">
+    <b>Name:</b> <span id="cname"></span><br>
+    <b>Phone:</b> <span id="cphone"></span><br>
+    <b>Address:</b> <span id="caddress"></span>
+  </div>
+
+  <div class="section">
+    <b>Items:</b>
+    <div id="items"></div>
+  </div>
+
+  <div class="hr"></div>
+
+  <div class="row">
+    <span>Subtotal</span>
+    <span id="subtotal"></span>
+  </div>
+  <div class="row">
+    <span>Delivery</span>
+    <span id="delivery"></span>
+  </div>
+  <div class="row total">
+    <span>Total</span>
+    <span id="total"></span>
+  </div>
+
+  <button class="btn upi" onclick="payUPI()">💳 Pay via UPI</button>
+  <button class="btn whatsapp" onclick="sendWhatsApp()">📲 Confirm & Order on WhatsApp</button>
+  <button class="btn pdf" onclick="downloadPDF()">🧾 Download Bill (PDF)</button>
+  <button class="btn back" onclick="goBack()">← Back to Menu</button>
+
+</div>
+
+<script>
+/* LOAD ORDER */
+const order = JSON.parse(localStorage.getItem("order"));
+if(!order){
+  alert("No order found");
+  location.href="index.html";
+}
+
+/* SHOW CUSTOMER */
+document.getElementById("cname").innerText = order.name;
+document.getElementById("cphone").innerText = order.phone;
+document.getElementById("caddress").innerText = order.address;
+
+/* ITEMS */
+let subtotal = 0;
+let html = "";
+
+order.cart.forEach(i=>{
+  let price = i.price * i.qty;
+  subtotal += price;
+  html += `
+    <div class="row">
+      <span>${i.name} x ${i.qty}</span>
+      <span>₹${price}</span>
+    </div>`;
+});
+
+document.getElementById("items").innerHTML = html;
+document.getElementById("subtotal").innerText = "₹" + subtotal;
+document.getElementById("delivery").innerText = "₹" + order.delivery;
+
+const TOTAL_AMOUNT = subtotal + order.delivery;
+document.getElementById("total").innerText = "₹" + TOTAL_AMOUNT;
+
+/* SAVE ORDER HISTORY FOR ADMIN */
+let history = JSON.parse(localStorage.getItem("orders")) || [];
+history.push({
+  date: new Date().toLocaleString(),
+  ...order,
+  total: TOTAL_AMOUNT,
+  status: "Pending"
+});
+localStorage.setItem("orders", JSON.stringify(history));
+
+/* ===== UPI PAYMENT ===== */
+
+const UPI_ID = "bhaskarsau9x@okaxis";   // ✅ your UPI
+const PAYEE_NAME = "SAU VARIETY STORE";
+
+function payUPI(){
+  const amount = TOTAL_AMOUNT;
+
+  // Try UPI app (mobile)
+  const upiIntent =
+    `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${amount}&cu=INR`;
+
+  window.location.href = upiIntent;
+
+  // Always show QR as fallback (no popup)
+  showUPIQR(amount);
+}
+
+function showUPIQR(amount){
+  document.getElementById("upiQR").style.display = "block";
+  document.getElementById("upiIdText").innerText =
+    "UPI ID: " + UPI_ID;
+
+  document.getElementById("qrImg").src =
+    "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" +
+    encodeURIComponent(
+      `upi://pay?pa=${UPI_ID}&pn=${PAYEE_NAME}&am=${amount}&cu=INR`
+    );
+}
+
+
+
+
+/* WHATSAPP */
+function sendWhatsApp(){
+  let msg =
+`NEW ORDER 🛒
+SAU VARIETY STORE
+
+Name: ${order.name}
+Phone: ${order.phone}
+Address: ${order.address}
+
+Items:
+`;
+  order.cart.forEach(i=>{
+    msg += `${i.name} x ${i.qty} = ₹${i.price*i.qty}\n`;
+  });
+
+  msg += `
+Delivery: ₹${order.delivery}
+Total: ₹${TOTAL_AMOUNT}
+`;
+
+  window.open(
+    "https://wa.me/918392036517?text=" + encodeURIComponent(msg),
+    "_blank"
+  );
+}
+
+/* PDF */
+function downloadPDF(){
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+  let y=20;
+
+  pdf.setFontSize(16);
+  pdf.text("SAU VARIETY STORE",20,y); y+=10;
+  pdf.setFontSize(12);
+  pdf.text(`Name: ${order.name}`,20,y); y+=7;
+  pdf.text(`Phone: ${order.phone}`,20,y); y+=7;
+  pdf.text(`Address: ${order.address}`,20,y); y+=10;
+
+  pdf.text("Items:",20,y); y+=7;
+  order.cart.forEach(i=>{
+    pdf.text(`${i.name} x ${i.qty} = ₹${i.price*i.qty}`,20,y);
+    y+=7;
+  });
+
+  y+=5;
+  pdf.text(`Delivery: ₹${order.delivery}`,20,y); y+=7;
+  pdf.text(`Total: ₹${TOTAL_AMOUNT}`,20,y);
+
+  pdf.save("SAU_Variety_Store_Bill.pdf");
+}
+
+/* BACK */
+function goBack(){
+  location.href="menu.html";
+}
+</script>
+
+</body>
+</html>
